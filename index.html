@@ -1,0 +1,204 @@
+<!DOCTYPE html><html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ArbiScanner - Radar de Arbitragem</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background-color: #f3f3f3;
+    }
+    header {
+      background-color: #2b2d42;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+    #login {
+      max-width: 300px;
+      margin: 40px auto;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    }
+    #login input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+    }
+    #app {
+      display: none;
+      padding: 20px;
+    }
+    .arbitragem {
+      background: white;
+      border-left: 6px solid green;
+      margin: 10px 0;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .alerta-lucro {
+      color: red;
+      font-weight: bold;
+    }
+    aside {
+      background-color: #edf2f4;
+      padding: 20px;
+      margin-top: 20px;
+      border-radius: 8px;
+    }
+    .recomendacoes {
+      margin-top: 20px;
+      padding: 15px;
+      background-color: #fff3cd;
+      border-left: 5px solid #ffc107;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>ArbiScanner - Radar de Arbitragem</h1>
+  </header>  <div id="login">
+    <h3>Login</h3>
+    <input type="text" id="usuario" placeholder="Usuário" />
+    <input type="password" id="senha" placeholder="Senha" />
+    <button onclick="verificarLogin()">Entrar</button>
+  </div>  <div id="app">
+    <h2>Palpite de Arbitragem do Dia</h2>
+    <div id="palpiteDia"></div><aside>
+  <h3>Radar de Arbitragem</h3>
+  <p id="numeroArbs"></p>
+  <p id="maiorLucro"></p>
+  <p id="tendencia"></p>
+</aside>
+
+<h2>Lista de Arbitragens</h2>
+<label>Valor total da aposta (R$): <input type="number" id="valorTotal" value="100" onchange="atualizarLista()" /></label>
+<div id="listaArbitragem"></div>
+
+<div class="recomendacoes">
+  <h4>Recomendações para evitar limites:</h4>
+  <ul>
+    <li>Evite sempre apostar valores exatos.</li>
+    <li>Não use arbitragem com lucro alto muitas vezes seguidas.</li>
+    <li>Evite apostar sempre no mesmo tipo de mercado.</li>
+    <li>Intercale com apostas simples ou múltiplas comuns.</li>
+  </ul>
+</div>
+
+  </div>  <script>
+    const usuarioCorreto = "scanner2025";
+    const senhaCorreta = "@morInfinito30";
+
+    const arbitragens = [
+      {
+        esporte: "Futebol",
+        tipo: "1x2",
+        odds: [2.1, 3.5],
+        casas: ["Bet365", "Pinnacle"],
+        aoVivo: true,
+        link: "https://bet365.com",
+      },
+      {
+        esporte: "Tênis",
+        tipo: "Handicap",
+        odds: [1.9, 2.2],
+        casas: ["Betano", "1xBet"],
+        aoVivo: false,
+        link: "https://betano.com",
+      },
+      {
+        esporte: "Basquete",
+        tipo: "Over/Under",
+        odds: [1.85, 2.25],
+        casas: ["Betfair", "22Bet"],
+        aoVivo: true,
+        link: "https://22bet.com",
+      }
+    ];
+
+    function verificarLogin() {
+      const u = document.getElementById("usuario").value;
+      const s = document.getElementById("senha").value;
+      if (u === usuarioCorreto && s === senhaCorreta) {
+        document.getElementById("login").style.display = "none";
+        document.getElementById("app").style.display = "block";
+        atualizarLista();
+        atualizarRadar();
+      } else {
+        alert("Usuário ou senha incorretos.");
+      }
+    }
+
+    function calcularArbitragem(odds) {
+      const soma = odds.reduce((acc, odd) => acc + 1 / odd, 0);
+      const temArbitragem = soma < 1;
+      const percentualLucro = temArbitragem ? ((1 - soma) * 100).toFixed(2) : 0;
+      return { temArbitragem, percentualLucro };
+    }
+
+    function atualizarLista() {
+      const container = document.getElementById("listaArbitragem");
+      const valor = parseFloat(document.getElementById("valorTotal").value);
+      container.innerHTML = "";
+      let maiorLucro = 0;
+      let esporteMaisPresente = {};
+
+      arbitragens.forEach((arb) => {
+        const resultado = calcularArbitragem(arb.odds);
+        if (resultado.temArbitragem) {
+          const apostas = arb.odds.map((odd) => ((valor / odd) / arb.odds.reduce((acc, o) => acc + 1 / o, 0)).toFixed(2));
+          if (!esporteMaisPresente[arb.esporte]) esporteMaisPresente[arb.esporte] = 0;
+          esporteMaisPresente[arb.esporte]++;
+          if (resultado.percentualLucro > maiorLucro) maiorLucro = resultado.percentualLucro;
+
+          const alertaClasse = resultado.percentualLucro > 8 ? 'alerta-lucro' : '';
+
+          container.innerHTML += `
+            <div class="arbitragem">
+              <strong>${arb.esporte} - ${arb.tipo} ${arb.aoVivo ? '(AO VIVO)' : '(PRÉ-JOGO)'}</strong><br>
+              Odds: ${arb.odds.join(" / ")}<br>
+              Casas: ${arb.casas.join(" e ")}<br>
+              Aposte: R$ ${apostas[0]} e R$ ${apostas[1]}<br>
+              Lucro: <span class="${alertaClasse}">${resultado.percentualLucro}%</span><br>
+              <a href="${arb.link}" target="_blank">Ir para casa de aposta</a>
+            </div>
+          `;
+        }
+      });
+
+      const melhor = arbitragens.reduce((max, arb) => {
+        const res = calcularArbitragem(arb.odds);
+        return res.temArbitragem && res.percentualLucro > calcularArbitragem(max.odds).percentualLucro ? arb : max;
+      }, arbitragens[0]);
+
+      document.getElementById("palpiteDia").innerHTML = `
+        <div class="arbitragem">
+          <strong>${melhor.esporte} - ${melhor.tipo}</strong><br>
+          Odds: ${melhor.odds.join(" / ")}<br>
+          Lucro estimado: ${calcularArbitragem(melhor.odds).percentualLucro}%
+        </div>
+      `;
+    }
+
+    function atualizarRadar() {
+      const porEsporte = {};
+      let maior = 0;
+      arbitragens.forEach((arb) => {
+        const res = calcularArbitragem(arb.odds);
+        if (res.temArbitragem) {
+          porEsporte[arb.esporte] = (porEsporte[arb.esporte] || 0) + 1;
+          if (parseFloat(res.percentualLucro) > maior) maior = parseFloat(res.percentualLucro);
+        }
+      });
+      const tendencia = Object.entries(porEsporte).sort((a,b)=>b[1]-a[1])[0][0];
+      document.getElementById("numeroArbs").innerText = `Total de arbitragens: ${arbitragens.length}`;
+      document.getElementById("maiorLucro").innerText = `Maior lucro atual: ${maior.toFixed(2)}%`;
+      document.getElementById("tendencia").innerText = `Esporte com mais oportunidades: ${tendencia}`;
+    }
+  </script></body>
+</html>
