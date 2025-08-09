@@ -1,0 +1,161 @@
+/* Reset básico */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+/* Fundo geral */
+body {
+  background: #121212;
+  color: #e0e0e0;
+  line-height: 1.6;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+/* Container principal */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Cabeçalho */
+header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+header h1 {
+  font-size: 2.8rem;
+  color: #00c8ff;
+  letter-spacing: 2px;
+  margin-bottom: 10px;
+}
+
+/* Botões */
+button, .btn {
+  background-color: #00c8ff;
+  border: none;
+  padding: 12px 25px;
+  border-radius: 30px;
+  color: #121212;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgb(0 200 255 / 0.3);
+  user-select: none;
+}
+
+button:hover, .btn:hover {
+  background-color: #008fbf;
+  box-shadow: 0 6px 12px rgb(0 143 191 / 0.5);
+  color: #fff;
+}
+
+/* Cards de arbitragem */
+.card {
+  background: #1f1f1f;
+  padding: 20px;
+  border-radius: 15px;
+  margin-bottom: 20px;
+  box-shadow: 0 0 15px rgb(0 200 255 / 0.15);
+  transition: transform 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+}
+
+/* Destaques para status Ao Vivo e Pré-Jogo */
+.status {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  user-select: none;
+}
+
+.status.ao-vivo {
+  background-color: #e03e3e;
+  color: #fff;
+  box-shadow: 0 0 10px #e03e3e88;
+}
+
+.status.pre-jogo {
+  background-color: #00c8ff;
+  color: #121212;
+  box-shadow: 0 0 10px #00c8ff88;
+}
+
+/* Tabelas */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+
+th, td {
+  padding: 12px 15px;
+  text-align: center;
+  border-bottom: 1px solid #333;
+}
+
+th {
+  background-color: #222;
+  color: #00c8ff;
+  letter-spacing: 1px;
+}
+
+tr:hover {
+  background-color: #333;
+}
+
+/* Links das casas de apostas */
+.aposta-link {
+  color: #00c8ff;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.3s;
+}
+
+.aposta-link:hover {
+  color: #008fbf;
+  text-decoration: underline;
+}
+
+/* Valores a apostar */
+.valor-apostar {
+  font-weight: 700;
+  color: #00ffa2;
+}
+
+/* Rodapé */
+footer {
+  margin-top: 40px;
+  text-align: center;
+  font-size: 0.9rem;
+  color: #777;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  body {
+    padding: 10px;
+  }
+
+  header h1 {
+    font-size: 2rem;
+  }
+
+  .card {
+    padding: 15px;
+  }
+
+  th, td {
+    padding: 8px 10px;
+  }
+}
