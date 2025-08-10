@@ -1,2 +1,2 @@
 # Site-arbitragem
-Simulador de arbitragem com odds fictícias
+Simulador de arbitragem com odds 
