@@ -1,6 +1,4 @@
 /* APP.JS
-   - Colar este arquivo como `app.js` no seu repositório
-   - Ele é responsável por toda a lógica do ArbiScanner
 */
 
 // ===== CONFIGURAÇÃO =====
