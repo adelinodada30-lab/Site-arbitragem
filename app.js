@@ -2,7 +2,7 @@
 */
 
 // ===== CONFIGURAÇÃO =====
-const API_KEY = "975e39ec8e83cf7e35230a93b8d7efaf"; // sua chave The Odds API
+// A API_KEY vem do config.js
 const API_BASE = "https://api.the-odds-api.com/v4";
 
 // ===== LOGIN =====
@@ -62,7 +62,6 @@ async function loadArbitragem() {
     let count = 0;
 
     data.forEach(event => {
-      // Simulação: vamos assumir 2 casas de aposta
       if (event.bookmakers.length < 2) return;
 
       const bm1 = event.bookmakers[0];
@@ -71,7 +70,6 @@ async function loadArbitragem() {
       bm1.markets.forEach(m1 => {
         bm2.markets.forEach(m2 => {
           if (m1.key === m2.key) {
-            // odds de cada casa
             const odds1 = m1.outcomes[0].price;
             const odds2 = m2.outcomes[1].price;
 
