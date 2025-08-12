@@ -1,4 +1,1 @@
-const CONFIG = {
-    API_KEY: "SUA_CHAVE_AQUI", // coloque sua key real aqui
-    API_URL: "https://api.seuservidor.com/endpoint" // troque pelo endereço real da API
-};
+const API_KEY = "975e39ec8e83cf7e35230a93b8d7efaf";
