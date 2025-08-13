@@ -1,30 +1,53 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const loginForm = document.getElementById('login-form');
+import React, { useState } from "react";
+import PainelArbitragem from "./PainelArbitragem";
 
-    if (loginForm) {
-        loginForm.addEventListener('submit', function(e) {
-            e.preventDefault();
+export default function App() {
+  const [logado, setLogado] = useState(false);
+  const [usuario, setUsuario] = useState("");
+  const [senha, setSenha] = useState("");
 
-            // Pega os valores digitados nos campos
-            const username = document.getElementById('username').value.trim();
-            const password = document.getElementById('password').value.trim();
+  const handleLogin = (e) => {
+    e.preventDefault();
 
-            // Credenciais fixas
-            const validUser = 'scanner2025';
-            const validPass = '@morInfinito30';
-
-            // Validação
-            if (username === validUser && password === validPass) {
-                // Armazena no localStorage para manter login
-                localStorage.setItem('loggedIn', 'true');
-
-                // Redireciona para a página principal
-                window.location.href = 'painel.html';
-            } else {
-                alert('Usuário ou senha incorretos.');
-            }
-        });
+    // Verifica usuário e senha fixos
+    if (usuario === "scanner2025" && senha === "@morInfinito30") {
+      setLogado(true);
     } else {
-        console.error('Formulário de login não encontrado no HTML.');
+      alert("Usuário ou senha incorretos!");
     }
-});
+  };
+
+  // Se já estiver logado, mostra o painel
+  if (logado) {
+    return <PainelArbitragem />;
+  }
+
+  // Tela de login
+  return (
+    <div style={{ textAlign: "center", marginTop: "50px" }}>
+      <h2>Login - ArbiScanner</h2>
+      <form onSubmit={handleLogin}>
+        <input
+          type="text"
+          placeholder="Usuário"
+          value={usuario}
+          onChange={(e) => setUsuario(e.target.value)}
+        />
+        <br /><br />
+        <input
+          type="password"
+          placeholder="Senha"
+          value={senha}
+          onChange={(e) => setSenha(e.target.value)}
+        />
+        <br /><br />
+        <button type="submit">Entrar</button>
+      </form>
+      <p>
+        <small>
+          Usuário: <strong>scanner2025</strong> | Senha: <strong>@morInfinito30</strong>
+        </small>
+      </p>
+    </div>
+  );
+}
