@@ -11,10 +11,20 @@ const appDiv = document.getElementById("app");
 const btnLogin = document.getElementById("btn-login");
 const btnLogout = document.getElementById("btn-logout");
 
+// Verifica login ao carregar a página
+window.addEventListener("load", () => {
+  if (localStorage.getItem("loggedIn") === "true") {
+    loginScreen.classList.add("hidden");
+    appDiv.classList.remove("hidden");
+    loadArbitragem();
+  }
+});
+
 btnLogin.addEventListener("click", () => {
   const user = document.getElementById("input-user").value.trim();
   const pass = document.getElementById("input-pass").value.trim();
   if (user === "scanner2025" && pass === "@morInfinito30") {
+    localStorage.setItem("loggedIn", "true");
     loginScreen.classList.add("hidden");
     appDiv.classList.remove("hidden");
     loadArbitragem();
@@ -24,6 +34,7 @@ btnLogin.addEventListener("click", () => {
 });
 
 btnLogout.addEventListener("click", () => {
+  localStorage.removeItem("loggedIn");
   appDiv.classList.add("hidden");
   loginScreen.classList.remove("hidden");
 });
