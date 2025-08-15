@@ -1,53 +1,37 @@
-import React, { useState } from "react";
-import PainelArbitragem from "./PainelArbitragem";
+// app.js - versão JavaScript puro para funcionar com seu index.html
 
-export default function App() {
-  const [logado, setLogado] = useState(false);
-  const [usuario, setUsuario] = useState("");
-  const [senha, setSenha] = useState("");
+document.addEventListener("DOMContentLoaded", () => {
+    const loginForm = document.getElementById("login-form");
+    const loginContainer = document.getElementById("login-container");
+    const appContainer = document.getElementById("app-container");
+    const userInfo = document.getElementById("user-info");
+    const logoutBtn = document.getElementById("logout-btn");
 
-  const handleLogin = (e) => {
-    e.preventDefault();
+    // Login fixo
+    const USUARIO_FIXO = "scanner2025";
+    const SENHA_FIXA = "@morInfinito30";
 
-    // Verifica usuário e senha fixos
-    if (usuario === "scanner2025" && senha === "@morInfinito30") {
-      setLogado(true);
-    } else {
-      alert("Usuário ou senha incorretos!");
-    }
-  };
+    loginForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const usuario = document.getElementById("username").value;
+        const senha = document.getElementById("password").value;
 
-  // Se já estiver logado, mostra o painel
-  if (logado) {
-    return <PainelArbitragem />;
-  }
+        if (usuario === USUARIO_FIXO && senha === SENHA_FIXA) {
+            loginContainer.style.display = "none";
+            appContainer.style.display = "block";
+            userInfo.textContent = `Bem-vindo, ${usuario}!`;
+        } else {
+            alert("Usuário ou senha incorretos!");
+        }
+    });
 
-  // Tela de login
-  return (
-    <div style={{ textAlign: "center", marginTop: "50px" }}>
-      <h2>Login - ArbiScanner</h2>
-      <form onSubmit={handleLogin}>
-        <input
-          type="text"
-          placeholder="Usuário"
-          value={usuario}
-          onChange={(e) => setUsuario(e.target.value)}
-        />
-        <br /><br />
-        <input
-          type="password"
-          placeholder="Senha"
-          value={senha}
-          onChange={(e) => setSenha(e.target.value)}
-        />
-        <br /><br />
-        <button type="submit">Entrar</button>
-      </form>
-      <p>
-        <small>
-          Usuário: <strong>scanner2025</strong> | Senha: <strong>@morInfinito30</strong>
-        </small>
-      </p>
-    </div>
-  );
-}
+    // Logout
+    logoutBtn.addEventListener("click", () => {
+        appContainer.style.display = "none";
+        loginContainer.style.display = "block";
+        loginForm.reset();
+    });
+
+    // Aqui você pode integrar a API usando a chave do config.js
+    console.log("Chave da API carregada:", API_KEY);
+});
