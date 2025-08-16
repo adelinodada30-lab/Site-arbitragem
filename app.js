@@ -1,51 +1,35 @@
-// app.js - versão JavaScript puro
+// app.js
 
-// ======= LOGIN =======
-document.getElementById('loginForm').addEventListener('submit', function (event) {
-    event.preventDefault();
+// ===== CONFIGURAÇÃO DE LOGIN =====
+const VALID_USER = "scanner2025";
+const VALID_PASS = "@morInfinito30";
 
-    const user = document.getElementById('username').value.trim();
-    const pass = document.getElementById('password').value.trim();
+// Função para verificar login
+function checkLogin(username, password) {
+    return username === VALID_USER && password === VALID_PASS;
+}
 
-    if (user === 'scanner2025' && pass === '@morInfinito30') {
-        document.getElementById('loginScreen').style.display = 'none';
-        document.getElementById('mainApp').style.display = 'block';
-        carregarArbitragem();
+// Intercepta o envio do formulário de login
+document.getElementById("loginForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    const username = document.getElementById("username").value.trim();
+    const password = document.getElementById("password").value.trim();
+
+    if (checkLogin(username, password)) {
+        // Salva login no navegador
+        localStorage.setItem("isLoggedIn", "true");
+
+        // Redireciona para a página principal
+        window.location.href = "painel.html";
     } else {
-        alert('Usuário ou senha incorretos!');
+        alert("Usuário ou senha incorretos!");
     }
 });
 
-// ======= FUNÇÃO PARA BUSCAR ARBITRAGEM =======
-async function carregarArbitragem() {
-    try {
-        const url = `https://api.the-odds-api.com/v4/sports/upcoming/odds/?apiKey=${API_KEY}&regions=eu&markets=h2h,over_under&oddsFormat=decimal`;
-
-        const resposta = await fetch(url);
-        if (!resposta.ok) throw new Error("Erro ao buscar dados da API");
-
-        const dados = await resposta.json();
-
-        exibirDados(dados);
-    } catch (erro) {
-        console.error("Erro:", erro);
-        alert("Não foi possível carregar as odds. Verifique a API Key e conexão.");
+// Verifica se já está logado e evita precisar logar de novo
+if (window.location.pathname.includes("painel.html")) {
+    if (localStorage.getItem("isLoggedIn") !== "true") {
+        window.location.href = "index.html"; // volta para login
     }
-}
-
-// ======= EXIBIR DADOS =======
-function exibirDados(lista) {
-    const tabela = document.getElementById('tabelaOdds');
-    tabela.innerHTML = ""; // limpar
-
-    lista.forEach(jogo => {
-        const linha = document.createElement('tr');
-        linha.innerHTML = `
-            <td>${jogo.home_team} vs ${jogo.away_team}</td>
-            <td>${jogo.bookmakers[0]?.markets[0]?.outcomes[0]?.price || '-'}</td>
-            <td>${jogo.bookmakers[0]?.markets[0]?.outcomes[1]?.price || '-'}</td>
-            <td>${jogo.sport_title}</td>
-        `;
-        tabela.appendChild(linha);
-    });
 }
