@@ -1,20 +1,18 @@
-// app.js
-
 // ---------------- LOGIN ----------------
 const USERNAME = "scanner2025";
 const PASSWORD = "@morInfinito30";
 
 function login(event) {
-  event.preventDefault();
+  if (event) event.preventDefault();
   const user = document.getElementById("username").value;
   const pass = document.getElementById("password").value;
 
   if (user === USERNAME && pass === PASSWORD) {
-    document.getElementById("login-section").style.display = "none";
+    document.getElementById("login-container").style.display = "none";
     document.getElementById("dashboard").style.display = "block";
     fetchArbitrages();
   } else {
-    document.getElementById("login-error").innerText = "Usuário ou senha inválidos!";
+    document.getElementById("login-msg").innerText = "Usuário ou senha inválidos!";
   }
 }
 
@@ -30,7 +28,7 @@ async function fetchArbitrages() {
 
     const sports = await response.json();
 
-    // Exemplo de odds simuladas (porque alguns endpoints da API exigem plano pago)
+    // Exemplo de odds simuladas (mock, pois alguns endpoints exigem plano pago)
     const mockArbs = [
       {
         esporte: "Futebol",
@@ -57,66 +55,30 @@ async function fetchArbitrages() {
     ];
 
     renderArbitrages(mockArbs);
-    renderRadar(mockArbs);
 
   } catch (error) {
     console.error(error);
-    document.getElementById("arbitrages-list").innerHTML = `<p>Erro ao carregar arbitragens.</p>`;
+    document.getElementById("arbitragem-list").innerHTML = `<p>Erro ao carregar arbitragens.</p>`;
   }
 }
 
 // ---------------- RENDERIZAR PAINEL ----------------
 function renderArbitrages(arbs) {
-  const container = document.getElementById("arbitrages-list");
+  const container = document.getElementById("arbitragem-list");
   container.innerHTML = "";
 
   arbs.forEach((arb) => {
     const div = document.createElement("div");
-    div.className = "arb-card";
+    div.className = "card arbitragem";
     div.innerHTML = `
-      <h3>${arb.times} <span class="tag">${arb.esporte}</span></h3>
+      <h3>${arb.times} <span style="font-size:12px; color:#666">(${arb.esporte})</span></h3>
       <p><b>Mercado:</b> ${arb.mercado}</p>
-      <div class="odds">
-        ${arb.odds.map(o => `
-          <a href="${o.link}" target="_blank">${o.casa}: <b>${o.odd}</b></a>
-        `).join(" | ")}
-      </div>
-      <p class="lucro">Lucro: <b>${arb.lucro}%</b> (${(arb.lucro * 10).toFixed(2)} R$)</p>
-      <p class="expira">Expira em: ${arb.expira}</p>
+      <p><b>Odds:</b> 
+        ${arb.odds.map(o => `<a class="link-aposta" href="${o.link}" target="_blank">${o.casa}: <b>${o.odd}</b></a>`).join(" ")}
+      </p>
+      <p class="lucro">Lucro: <b>${arb.lucro}%</b></p>
+      <p><i>Expira em ${arb.expira}</i></p>
     `;
     container.appendChild(div);
   });
-
-  // Palpite do dia (maior lucro)
-  const best = arbs.reduce((a, b) => (a.lucro > b.lucro ? a : b));
-  document.getElementById("palpite-dia").innerHTML = `
-    <h3>Palpite do Dia</h3>
-    <p>${best.times} (${best.mercado})</p>
-    <p><b>Lucro:</b> ${best.lucro}%</p>
-  `;
 }
-
-// ---------------- RADAR DE ARBITRAGEM ----------------
-function renderRadar(arbs) {
-  const total = arbs.length;
-  const maiorLucro = Math.max(...arbs.map(a => a.lucro));
-  const porEsporte = {};
-
-  arbs.forEach(a => {
-    porEsporte[a.esporte] = (porEsporte[a.esporte] || 0) + 1;
-  });
-
-  const radar = document.getElementById("radar");
-  radar.innerHTML = `
-    <h3>Radar de Arbitragem</h3>
-    <p>Total de arbitragens: ${total}</p>
-    <p>Maior lucro: ${maiorLucro}%</p>
-    <p>Distribuição por esporte:</p>
-    <ul>
-      ${Object.entries(porEsporte).map(([esp, qtd]) => `<li>${esp}: ${qtd}</li>`).join("")}
-    </ul>
-  `;
-}
-
-// ---------------- INIT ----------------
-document.getElementById("login-form").addEventListener("submit", login);
