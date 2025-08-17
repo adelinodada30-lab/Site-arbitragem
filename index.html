@@ -2,65 +2,92 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ArbiScanner - Painel</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body { background: #f4f6f9; }
-    .hidden { display: none; }
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background: #f4f6f9;
+      color: #333;
+    }
+    header {
+      background: #1e293b;
+      color: white;
+      padding: 1rem;
+      text-align: center;
+    }
+    .container {
+      display: grid;
+      grid-template-columns: 250px 1fr;
+      gap: 1rem;
+      padding: 1rem;
+    }
+    .sidebar {
+      background: white;
+      border-radius: 12px;
+      padding: 1rem;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    .content {
+      background: white;
+      border-radius: 12px;
+      padding: 1rem;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    h2 {
+      margin-top: 0;
+      font-size: 1.2rem;
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 0.5rem;
+    }
+    .card {
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      background: #f9fafb;
+    }
+    .highlight {
+      color: #16a34a;
+      font-weight: bold;
+    }
   </style>
 </head>
-<body class="flex items-center justify-center min-h-screen">
+<body>
+  <header>
+    <h1>ArbiScanner - Painel de Arbitragem</h1>
+  </header>
+  <div class="container">
+    <aside class="sidebar">
+      <h2>Radar de Arbitragem</h2>
+      <p>⚽ Futebol: <strong>12 arbitragens</strong></p>
+      <p>🎾 Tênis: <strong>5 arbitragens</strong></p>
+      <p>🏀 Basquete: <strong>8 arbitragens</strong></p>
+      <p>💰 Maior lucro: <span class="highlight">+12.5%</span></p>
+    </aside>
+    <main class="content">
+      <h2>Palpite do Dia</h2>
+      <div class="card">
+        <p><strong>Jogo:</strong> Real Madrid x Barcelona</p>
+        <p><strong>Mercado:</strong> 1x2</p>
+        <p><strong>Odds:</strong> Bet365 (2.10) | Betfair (2.05)</p>
+        <p><strong>Lucro:</strong> <span class="highlight">+5.3%</span></p>
+        <p><strong>Investimento sugerido:</strong> R$ 100 → Garantia: R$ 105,30</p>
+      </div>
 
-  <!-- Tela de Login -->
-  <div id="login-container" class="w-full max-w-sm bg-white p-6 rounded-2xl shadow-lg">
-    <h2 class="text-2xl font-bold text-center mb-4">🔐 Login</h2>
-    <input id="username" type="text" placeholder="Usuário" class="w-full p-2 mb-3 border rounded-lg">
-    <input id="password" type="password" placeholder="Senha" class="w-full p-2 mb-3 border rounded-lg">
-    <button onclick="login()" class="w-full bg-blue-600 text-white p-2 rounded-lg hover:bg-blue-700">Entrar</button>
-    <p id="login-error" class="text-red-500 text-sm mt-2 hidden">Usuário ou senha incorretos</p>
+      <h2>Últimas Arbitragens</h2>
+      <div class="card">
+        <p><strong>Flamengo x Palmeiras</strong> - Over 2.5</p>
+        <p>Betano (1.95) | Bet365 (2.05)</p>
+        <p>Lucro: <span class="highlight">+3.1%</span></p>
+      </div>
+      <div class="card">
+        <p><strong>Djokovic x Alcaraz</strong> - Handicap +2.5</p>
+        <p>Pinnacle (1.88) | Betfair (2.12)</p>
+        <p>Lucro: <span class="highlight">+4.6%</span></p>
+      </div>
+    </main>
   </div>
-
-  <!-- Painel -->
-  <div id="dashboard-container" class="hidden w-full min-h-screen p-6">
-    <header class="flex justify-between items-center mb-6">
-      <h1 class="text-3xl font-bold text-gray-800">📊 Painel de Arbitragem</h1>
-      <button onclick="logout()" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600">Sair</button>
-    </header>
-
-    <!-- Radar de Arbitragem -->
-    <section class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-      <div class="bg-white p-4 rounded-2xl shadow">
-        <h2 class="text-lg font-bold">⚽ Arbitragem por Esporte</h2>
-        <p id="arbs-por-esporte" class="text-gray-600 mt-2">Carregando...</p>
-      </div>
-      <div class="bg-white p-4 rounded-2xl shadow">
-        <h2 class="text-lg font-bold">💰 Maior Lucro Encontrado</h2>
-        <p id="maior-lucro" class="text-green-600 text-xl font-bold mt-2">-</p>
-      </div>
-      <div class="bg-white p-4 rounded-2xl shadow">
-        <h2 class="text-lg font-bold">📈 Tendência</h2>
-        <p id="tendencia" class="text-gray-600 mt-2">-</p>
-      </div>
-    </section>
-
-    <!-- Palpite do Dia -->
-    <section class="mb-8">
-      <div class="bg-yellow-100 p-4 rounded-2xl shadow">
-        <h2 class="text-xl font-bold">⭐ Palpite de Arbitragem do Dia</h2>
-        <p id="palpite-dia" class="text-gray-700 mt-2">Carregando...</p>
-      </div>
-    </section>
-
-    <!-- Lista de Arbitragens -->
-    <section>
-      <h2 class="text-2xl font-bold mb-4">📋 Arbitragem Encontradas</h2>
-      <div id="arbs-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <!-- Os cards serão injetados via JS -->
-      </div>
-    </section>
-  </div>
-
-  <script src="app.js"></script>
 </body>
 </html>
