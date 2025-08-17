@@ -1,98 +1,51 @@
-Nova index.html 
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ArbiScanner</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ArbiScanner</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="login-container">
-        <h1>Entrar no ArbiScanner</h1>
-        <form id="login-form">
-            <label for="username">Usuário</label>
-            <input type="text" id="username" name="username" placeholder="Usuário">
-            <label for="password">Senha</label>
-            <input type="password" id="password" name="password" placeholder="Senha">
-            <button type="submit">Entrar</button>
-        </form>
-        <p>Usuário: <strong>scanner2025</strong> | Senha: <strong>@morInfinito30</strong></p>
-    </div>
+  <div id="login-container" class="login-container">
+    <h2>Login</h2>
+    <input type="text" id="username" placeholder="Usuário">
+    <input type="password" id="password" placeholder="Senha">
+    <button onclick="login()">Entrar</button>
+    <p id="login-error" class="error"></p>
+  </div>
 
-    <div id="app-container" style="display: none;">
-        <h1>ArbiScanner</h1>
-        <p id="user-info"></p>
-        <button id="logout-btn">Sair</button>
+  <div id="app-container" class="hidden">
+    <header>
+      <h1>📊 Painel de Arbitragem - ArbiScanner</h1>
+      <button onclick="logout()">Sair</button>
+    </header>
 
-        <div class="tabs">
-            <button class="tab-button" data-tab="arbitragem">Painel de Arbitragem</button>
-            <button class="tab-button" data-tab="placares">Placares</button>
-            <button class="tab-button" data-tab="configuracoes">Configurações</button>
-        </div>
+    <aside class="sidebar">
+      <h2>Radar de Arbitragem</h2>
+      <p id="total-arbs">Arbitragens encontradas: 0</p>
+      <p id="best-arb">Melhor lucro: 0%</p>
+      <p id="trend">Tendência: -</p>
 
-        <div id="tab-arbitragem" class="tab-content">
-            <label><input type="checkbox" id="show-1x2" checked> 1x2</label>
-            <label><input type="checkbox" id="show-btts" checked> Ambos marcam</label>
-            <label>Mostrar resultados:
-                <select id="results-filter">
-                    <option value="both">Ambos (2 & 3)</option>
-                    <option value="2">Somente tipo 2</option>
-                    <option value="3">Somente tipo 3</option>
-                </select>
-            </label>
-            <label>Pré-jogo / Ao vivo:
-                <select id="game-status">
-                    <option value="both">Ambos</option>
-                    <option value="pre">Pré-jogo</option>
-                    <option value="live">Ao vivo</option>
-                </select>
-            </label>
-            <label>Valor total (R$):
-                <input type="number" id="total-value" value="100">
-            </label>
-            <label>Min lucro % (filtrar):
-                <input type="number" id="min-profit" value="0">
-            </label>
-            <button id="update-btn">Atualizar</button>
+      <h3>Filtros</h3>
+      <label><input type="checkbox" id="filter-1x2" checked> Mostrar 1x2</label><br>
+      <label><input type="checkbox" id="filter-btts" checked> Mostrar Ambos Marcam</label><br>
+      <label><input type="checkbox" id="filter-ou"> Mostrar Over/Under</label><br>
+      <label><input type="checkbox" id="filter-handicap"> Mostrar Handicap</label><br>
 
-            <p>Arbitragens encontradas: <span id="arb-count">0</span></p>
-            <p>Maior lucro: <span id="max-profit">0%</span></p>
-            <p>Palpite do dia: <span id="daily-tip">—</span></p>
+      <h3>Resultados</h3>
+      <label><input type="radio" name="result-filter" value="2"> Apenas 2 resultados</label><br>
+      <label><input type="radio" name="result-filter" value="3"> Apenas 3 resultados</label><br>
+      <label><input type="radio" name="result-filter" value="all" checked> Ambos</label>
+    </aside>
 
-            <table id="arb-table">
-                <thead>
-                    <tr>
-                        <th>Evento / Times</th>
-                        <th>Mercado</th>
-                        <th>Casa A</th>
-                        <th>Casa B</th>
-                        <th>Lucro %</th>
-                        <th>Lucro R$</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-        </div>
+    <main>
+      <h2>Lista de Arbitragens</h2>
+      <div id="arbitrage-list" class="arb-list"></div>
+    </main>
+  </div>
 
-        <div id="tab-placares" class="tab-content" style="display:none;">
-            <h2>Placares / Placar ao vivo</h2>
-            <p>Esta aba mantida como secundária — dados de placares e eventos aparecem aqui.</p>
-            <div id="scores-container">Carregando placares...</div>
-        </div>
-
-        <div id="tab-configuracoes" class="tab-content" style="display:none;">
-            <h2>Configurações</h2>
-            <p>Aqui você pode editar a API Key, ajustar filtros padrão e ver instruções.</p>
-            <label>API Key (The Odds API):</label>
-            <input type="text" id="api-key-input" placeholder="Cole sua API Key aqui">
-            <p>Dica: a chave também pode ser colocada direto no arquivo <code>config.js</code> (procure pela variável <code>API_KEY</code>).</p>
-        </div>
-    </div>
-
-    <!-- Carregar primeiro a configuração -->
-    <script src="config.js"></script>
-    <!-- Depois o app -->
-    <script src="app.js"></script>
+  <script src="config.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
