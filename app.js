@@ -1,84 +1,72 @@
-// ---------------- LOGIN ----------------
-const USERNAME = "scanner2025";
-const PASSWORD = "@morInfinito30";
-
-function login(event) {
-  if (event) event.preventDefault();
-  const user = document.getElementById("username").value;
-  const pass = document.getElementById("password").value;
-
-  if (user === USERNAME && pass === PASSWORD) {
-    document.getElementById("login-container").style.display = "none";
-    document.getElementById("dashboard").style.display = "block";
-    fetchArbitrages();
-  } else {
-    document.getElementById("login-msg").innerText = "Usuário ou senha inválidos!";
-  }
-}
-
-// ---------------- CONFIG ----------------
+// app.js
 const API_KEY = "975e39ec8e83cf7e35230a93b8d7efaf";
-const API_URL = `https://api.the-odds-api.com/v4/sports/?apiKey=${API_KEY}`;
+const API_URL = `https://api.the-odds-api.com/v4/sports/upcoming/odds/?regions=eu&markets=h2h,totals,spreads&oddsFormat=decimal&apiKey=${API_KEY}`;
 
-// ---------------- FETCH ODDS ----------------
-async function fetchArbitrages() {
-  try {
-    const response = await fetch(API_URL);
-    if (!response.ok) throw new Error("Erro ao buscar dados da API");
+// Função para login simples
+function login(event) {
+    event.preventDefault();
+    const user = document.getElementById("username").value;
+    const pass = document.getElementById("password").value;
 
-    const sports = await response.json();
-
-    // Exemplo de odds simuladas (mock, pois alguns endpoints exigem plano pago)
-    const mockArbs = [
-      {
-        esporte: "Futebol",
-        times: "Flamengo vs Palmeiras",
-        mercado: "1x2",
-        odds: [
-          { casa: "Bet365", odd: 2.1, link: "https://bet365.com" },
-          { casa: "Pinnacle", odd: 1.95, link: "https://pinnacle.com" }
-        ],
-        lucro: 3.2,
-        expira: "10 min"
-      },
-      {
-        esporte: "Tênis",
-        times: "Nadal vs Djokovic",
-        mercado: "Over/Under 22.5 games",
-        odds: [
-          { casa: "Betfair", odd: 1.9, link: "https://betfair.com" },
-          { casa: "Bet365", odd: 2.05, link: "https://bet365.com" }
-        ],
-        lucro: 1.8,
-        expira: "5 min"
-      }
-    ];
-
-    renderArbitrages(mockArbs);
-
-  } catch (error) {
-    console.error(error);
-    document.getElementById("arbitragem-list").innerHTML = `<p>Erro ao carregar arbitragens.</p>`;
-  }
+    if (user === "scanner2025" && pass === "@morInfinito30") {
+        document.getElementById("login-container").style.display = "none";
+        document.getElementById("app-container").style.display = "block";
+        fetchOdds();
+    } else {
+        document.getElementById("login-error").innerText = "Usuário ou senha incorretos!";
+    }
 }
 
-// ---------------- RENDERIZAR PAINEL ----------------
-function renderArbitrages(arbs) {
-  const container = document.getElementById("arbitragem-list");
-  container.innerHTML = "";
+// Função para buscar odds reais
+async function fetchOdds() {
+    try {
+        const response = await fetch(API_URL);
+        const data = await response.json();
 
-  arbs.forEach((arb) => {
-    const div = document.createElement("div");
-    div.className = "card arbitragem";
-    div.innerHTML = `
-      <h3>${arb.times} <span style="font-size:12px; color:#666">(${arb.esporte})</span></h3>
-      <p><b>Mercado:</b> ${arb.mercado}</p>
-      <p><b>Odds:</b> 
-        ${arb.odds.map(o => `<a class="link-aposta" href="${o.link}" target="_blank">${o.casa}: <b>${o.odd}</b></a>`).join(" ")}
-      </p>
-      <p class="lucro">Lucro: <b>${arb.lucro}%</b></p>
-      <p><i>Expira em ${arb.expira}</i></p>
-    `;
-    container.appendChild(div);
-  });
+        if (!Array.isArray(data)) {
+            document.getElementById("odds-list").innerHTML = "<p>Erro ao carregar odds da API.</p>";
+            return;
+        }
+
+        renderOdds(data);
+    } catch (error) {
+        console.error("Erro na API:", error);
+        document.getElementById("odds-list").innerHTML = "<p>Erro ao conectar à API.</p>";
+    }
+}
+
+// Renderizar odds no painel
+function renderOdds(games) {
+    const container = document.getElementById("odds-list");
+    container.innerHTML = "";
+
+    if (games.length === 0) {
+        container.innerHTML = "<p>Nenhuma arbitragem encontrada no momento.</p>";
+        return;
+    }
+
+    games.forEach(game => {
+        const bookmakers = game.bookmakers || [];
+        if (bookmakers.length < 2) return; // precisa de pelo menos 2 casas
+
+        const div = document.createElement("div");
+        div.className = "odd-card";
+        div.innerHTML = `
+            <h3>${game.sport_title} - ${game.home_team} vs ${game.away_team}</h3>
+            <p><strong>Início:</strong> ${new Date(game.commence_time).toLocaleString()}</p>
+            <div class="bookmakers">
+                ${bookmakers.map(bm => `
+                    <div class="bookmaker">
+                        <h4>${bm.title}</h4>
+                        ${bm.markets.map(market => `
+                            <p>${market.key}: 
+                                ${market.outcomes.map(out => `${out.name} (${out.price})`).join(" | ")}
+                            </p>
+                        `).join("")}
+                    </div>
+                `).join("")}
+            </div>
+        `;
+        container.appendChild(div);
+    });
 }
