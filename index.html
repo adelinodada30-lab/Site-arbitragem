@@ -2,36 +2,38 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ArbiScanner</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div id="login-screen">
+  <div id="login-container">
     <h2>Login</h2>
     <input type="text" id="username" placeholder="Usuário">
     <input type="password" id="password" placeholder="Senha">
-    <button id="loginBtn">Entrar</button>
-    <p id="login-error" class="error"></p>
+    <button onclick="login()">Entrar</button>
+    <p id="login-error"></p>
   </div>
 
-  <div id="main-panel" class="hidden">
+  <div id="app-container" style="display:none;">
     <header>
       <h1>ArbiScanner</h1>
-      <button id="logoutBtn">Sair</button>
+      <button onclick="logout()">Sair</button>
     </header>
+    <main>
+      <section id="controls">
+        <label>
+          Valor da Stake (R$):
+          <input type="number" id="stake" value="100">
+        </label>
+        <button onclick="loadOdds()">Buscar Odds</button>
+      </section>
 
-    <section id="filters">
-      <h3>Filtros</h3>
-      <label><input type="checkbox" id="show-1x2" checked> 1x2</label>
-      <label><input type="checkbox" id="show-btts" checked> Ambos Marcam</label>
-      <label><input type="checkbox" id="show-handicap"> Handicap</label>
-      <label><input type="checkbox" id="show-overunder"> Over/Under</label>
-    </section>
-
-    <section id="odds-container">
-      <h3>Arbitragens Encontradas</h3>
-      <div id="odds-list"></div>
-    </section>
+      <section id="odds-panel">
+        <h2>Arbitragem Encontrada</h2>
+        <div id="odds-results">Carregando...</div>
+      </section>
+    </main>
   </div>
 
   <script src="config.js"></script>
