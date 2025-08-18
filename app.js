@@ -1,101 +1,72 @@
-// ===== LOGIN =====
-function login() {
-  const user = document.getElementById("username").value;
-  const pass = document.getElementById("password").value;
+document.addEventListener("DOMContentLoaded", () => {
+  const loginScreen = document.getElementById("login-screen");
+  const mainPanel = document.getElementById("main-panel");
+  const loginBtn = document.getElementById("loginBtn");
+  const logoutBtn = document.getElementById("logoutBtn");
+  const loginError = document.getElementById("login-error");
+  const oddsList = document.getElementById("odds-list");
 
-  if (user === "scanner2025" && pass === "@morInfinito30") {
-    document.getElementById("login-container").classList.add("hidden");
-    document.getElementById("app-container").classList.remove("hidden");
-    loadArbitrages();
-  } else {
-    document.getElementById("login-error").textContent = "Usuário ou senha inválidos";
+  // LOGIN
+  loginBtn.addEventListener("click", () => {
+    const user = document.getElementById("username").value;
+    const pass = document.getElementById("password").value;
+    if (user === CONFIG.USERNAME && pass === CONFIG.PASSWORD) {
+      loginScreen.classList.add("hidden");
+      mainPanel.classList.remove("hidden");
+      fetchOdds();
+    } else {
+      loginError.textContent = "Usuário ou senha incorretos!";
+    }
+  });
+
+  logoutBtn.addEventListener("click", () => {
+    mainPanel.classList.add("hidden");
+    loginScreen.classList.remove("hidden");
+  });
+
+  // FUNÇÃO PARA BUSCAR ODDS
+  async function fetchOdds() {
+    oddsList.innerHTML = "<p>Carregando odds...</p>";
+    try {
+      const sports = ["soccer", "basketball", "tennis"];
+      let allOdds = [];
+
+      for (let sport of sports) {
+        const res = await fetch(`${CONFIG.API_URL}/${sport}/odds/?apiKey=${CONFIG.API_KEY}&regions=eu&markets=h2h,totals,btts&oddsFormat=decimal`);
+        const data = await res.json();
+        allOdds = allOdds.concat(data);
+      }
+
+      showOdds(allOdds);
+    } catch (err) {
+      oddsList.innerHTML = "<p>Erro ao carregar odds.</p>";
+    }
   }
-}
 
-function logout() {
-  document.getElementById("login-container").classList.remove("hidden");
-  document.getElementById("app-container").classList.add("hidden");
-}
+  // FUNÇÃO EXIBIR
+  function showOdds(oddsData) {
+    oddsList.innerHTML = "";
 
-// ===== FETCH ODDS =====
-async function fetchOdds(sport) {
-  const url = `${CONFIG.API_URL}/${sport}/odds/?regions=eu&markets=h2h,totals,btts,spreads&oddsFormat=decimal&apiKey=${CONFIG.API_KEY}`;
-  const res = await fetch(url);
-  return res.json();
-}
+    if (!oddsData || oddsData.length === 0) {
+      oddsList.innerHTML = "<p>Nenhuma arbitragem encontrada.</p>";
+      return;
+    }
 
-// ===== CALC ARBITRAGEM =====
-function calcArbitrage(odds) {
-  const invSum = odds.reduce((sum, odd) => sum + (1 / odd), 0);
-  if (invSum < 1) {
-    const profit = (1 - invSum) * 100;
-    return profit.toFixed(2);
-  }
-  return null;
-}
-
-// ===== STAKE DISTRIBUTION =====
-function calcStakes(odds, totalStake = 100) {
-  const invSum = odds.reduce((sum, odd) => sum + (1 / odd), 0);
-  if (invSum >= 1) return null;
-
-  let stakes = odds.map(odd => (totalStake / odd) / invSum);
-  return stakes.map(v => v.toFixed(2));
-}
-
-// ===== LOAD DATA =====
-async function loadArbitrages() {
-  const sports = ["soccer", "basketball_nba", "tennis_atp"];
-  const arbList = document.getElementById("arbitrage-list");
-  arbList.innerHTML = "Carregando arbitragens...";
-
-  let bestProfit = 0;
-  let totalArbs = 0;
-  arbList.innerHTML = "";
-
-  for (let sport of sports) {
-    const data = await fetchOdds(sport);
-
-    data.forEach(event => {
-      if (!event.bookmakers) return;
-
-      event.bookmakers.forEach(book => {
-        book.markets.forEach(market => {
-          const odds = market.outcomes.map(o => o.price);
-
-          // Apenas mercados válidos (2 ou 3 odds)
-          if (odds.length < 2 || odds.length > 3) return;
-
-          const profit = calcArbitrage(odds);
-
-          if (profit) {
-            totalArbs++;
-            if (profit > bestProfit) bestProfit = profit;
-
-            const stakes = calcStakes(odds, 100);
-
-            const card = document.createElement("div");
-            card.className = "arb-card";
-            card.innerHTML = `
-              <h3>${event.home_team} vs ${event.away_team}</h3>
-              <p><strong>Esporte:</strong> ${sport}</p>
-              <p><strong>Mercado:</strong> ${market.key}</p>
-              <p><strong>Casa:</strong> ${book.title}</p>
-              <p><strong>Odds:</strong> ${odds.join(" | ")}</p>
-              <p><strong>Lucro Arbitragem:</strong> ${profit}%</p>
-              <p><strong>Stake Sugerida (banca 100):</strong></p>
-              <ul>
-                ${stakes.map((s, i) => `<li>Aposta ${i + 1}: ${s}</li>`).join("")}
-              </ul>
-            `;
-            arbList.appendChild(card);
-          }
-        });
-      });
+    oddsData.forEach(match => {
+      const card = document.createElement("div");
+      card.className = "odds-card";
+      card.innerHTML = `
+        <h4>${match.sport_title} - ${match.home_team} x ${match.away_team}</h4>
+        <p><strong>Mercados:</strong></p>
+        ${match.bookmakers.map(bm => `
+          <p>${bm.title}: 
+            ${bm.markets.map(mk => `
+              <span>${mk.key}: ${mk.outcomes.map(o => `${o.name} @ ${o.price}`).join(" | ")}</span>
+            `).join("<br>")}
+          </p>
+        `).join("<hr>")}
+      `;
+      oddsList.appendChild(card);
     });
   }
-
-  document.getElementById("total-arbs").textContent = `Arbitragens encontradas: ${totalArbs}`;
-  document.getElementById("best-arb").textContent = `Melhor lucro: ${bestProfit}%`;
-  document.getElementById("trend").textContent = totalArbs > 0 ? "Alta" : "Baixa";
-}
+});
