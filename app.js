@@ -19,7 +19,7 @@ function logout() {
 
 // ===== FETCH ODDS =====
 async function fetchOdds(sport) {
-  const url = `${CONFIG.API_URL}/${sport}/odds/?regions=eu&markets=h2h,over_under&apiKey=${CONFIG.API_KEY}`;
+  const url = `${CONFIG.API_URL}/${sport}/odds/?regions=eu&markets=h2h,totals,btts,spreads&oddsFormat=decimal&apiKey=${CONFIG.API_KEY}`;
   const res = await fetch(url);
   return res.json();
 }
@@ -34,9 +34,18 @@ function calcArbitrage(odds) {
   return null;
 }
 
+// ===== STAKE DISTRIBUTION =====
+function calcStakes(odds, totalStake = 100) {
+  const invSum = odds.reduce((sum, odd) => sum + (1 / odd), 0);
+  if (invSum >= 1) return null;
+
+  let stakes = odds.map(odd => (totalStake / odd) / invSum);
+  return stakes.map(v => v.toFixed(2));
+}
+
 // ===== LOAD DATA =====
 async function loadArbitrages() {
-  const sports = ["soccer", "basketball", "tennis"];
+  const sports = ["soccer", "basketball_nba", "tennis_atp"];
   const arbList = document.getElementById("arbitrage-list");
   arbList.innerHTML = "Carregando arbitragens...";
 
@@ -53,20 +62,31 @@ async function loadArbitrages() {
       event.bookmakers.forEach(book => {
         book.markets.forEach(market => {
           const odds = market.outcomes.map(o => o.price);
+
+          // Apenas mercados válidos (2 ou 3 odds)
+          if (odds.length < 2 || odds.length > 3) return;
+
           const profit = calcArbitrage(odds);
 
           if (profit) {
             totalArbs++;
             if (profit > bestProfit) bestProfit = profit;
 
+            const stakes = calcStakes(odds, 100);
+
             const card = document.createElement("div");
             card.className = "arb-card";
             card.innerHTML = `
               <h3>${event.home_team} vs ${event.away_team}</h3>
+              <p><strong>Esporte:</strong> ${sport}</p>
               <p><strong>Mercado:</strong> ${market.key}</p>
               <p><strong>Casa:</strong> ${book.title}</p>
               <p><strong>Odds:</strong> ${odds.join(" | ")}</p>
               <p><strong>Lucro Arbitragem:</strong> ${profit}%</p>
+              <p><strong>Stake Sugerida (banca 100):</strong></p>
+              <ul>
+                ${stakes.map((s, i) => `<li>Aposta ${i + 1}: ${s}</li>`).join("")}
+              </ul>
             `;
             arbList.appendChild(card);
           }
