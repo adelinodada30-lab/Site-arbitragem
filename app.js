@@ -1,72 +1,66 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const loginScreen = document.getElementById("login-screen");
-  const mainPanel = document.getElementById("main-panel");
-  const loginBtn = document.getElementById("loginBtn");
-  const logoutBtn = document.getElementById("logoutBtn");
-  const loginError = document.getElementById("login-error");
-  const oddsList = document.getElementById("odds-list");
-
-  // LOGIN
-  loginBtn.addEventListener("click", () => {
-    const user = document.getElementById("username").value;
-    const pass = document.getElementById("password").value;
-    if (user === CONFIG.USERNAME && pass === CONFIG.PASSWORD) {
-      loginScreen.classList.add("hidden");
-      mainPanel.classList.remove("hidden");
-      fetchOdds();
-    } else {
-      loginError.textContent = "Usuário ou senha incorretos!";
-    }
-  });
-
-  logoutBtn.addEventListener("click", () => {
-    mainPanel.classList.add("hidden");
-    loginScreen.classList.remove("hidden");
-  });
-
-  // FUNÇÃO PARA BUSCAR ODDS
-  async function fetchOdds() {
-    oddsList.innerHTML = "<p>Carregando odds...</p>";
-    try {
-      const sports = ["soccer", "basketball", "tennis"];
-      let allOdds = [];
-
-      for (let sport of sports) {
-        const res = await fetch(`${CONFIG.API_URL}/${sport}/odds/?apiKey=${CONFIG.API_KEY}&regions=eu&markets=h2h,totals,btts&oddsFormat=decimal`);
-        const data = await res.json();
-        allOdds = allOdds.concat(data);
-      }
-
-      showOdds(allOdds);
-    } catch (err) {
-      oddsList.innerHTML = "<p>Erro ao carregar odds.</p>";
-    }
+async function login() {
+  const user = document.getElementById("username").value;
+  const pass = document.getElementById("password").value;
+  if (user === "scanner2025" && pass === "@morInfinito30") {
+    document.getElementById("login-container").style.display = "none";
+    document.getElementById("app-container").style.display = "block";
+    loadOdds();
+  } else {
+    document.getElementById("login-error").innerText = "Usuário ou senha inválidos";
   }
+}
 
-  // FUNÇÃO EXIBIR
-  function showOdds(oddsData) {
-    oddsList.innerHTML = "";
+function logout() {
+  document.getElementById("login-container").style.display = "block";
+  document.getElementById("app-container").style.display = "none";
+}
 
-    if (!oddsData || oddsData.length === 0) {
-      oddsList.innerHTML = "<p>Nenhuma arbitragem encontrada.</p>";
-      return;
+async function loadOdds() {
+  const resultsDiv = document.getElementById("odds-results");
+  resultsDiv.innerHTML = "Carregando odds...";
+
+  try {
+    const sports = ["soccer", "tennis", "basketball"];
+    let arbitragemHTML = "";
+
+    for (let sport of sports) {
+      const url = `${API_URL}/${sport}/odds/?regions=eu&markets=h2h,totals,btts&oddsFormat=decimal&apiKey=${API_KEY}`;
+      const res = await fetch(url);
+      if (!res.ok) continue;
+      const data = await res.json();
+
+      data.slice(0, 3).forEach(event => {
+        const teams = event.home_team + " vs " + event.away_team;
+        const bookmakers = event.bookmakers.slice(0, 2);
+        if (bookmakers.length < 2) return;
+
+        const odds1 = bookmakers[0].markets[0].outcomes[0].price;
+        const odds2 = bookmakers[1].markets[0].outcomes[1].price;
+
+        const stake = parseFloat(document.getElementById("stake").value);
+        const inv = (1/odds1) + (1/odds2);
+
+        if (inv < 1) {
+          const bet1 = (stake / odds1) / inv;
+          const bet2 = (stake / odds2) / inv;
+          const lucro = (stake / inv) - stake;
+
+          arbitragemHTML += `
+            <div class="arbi-card">
+              <h3>${teams}</h3>
+              <p>Casa A: ${bookmakers[0].title} | Odd: ${odds1}</p>
+              <p>Casa B: ${bookmakers[1].title} | Odd: ${odds2}</p>
+              <p>Apostar R$${bet1.toFixed(2)} e R$${bet2.toFixed(2)}</p>
+              <p class="profit">Lucro Garantido: R$${lucro.toFixed(2)} (${((1-inv)*100).toFixed(2)}%)</p>
+            </div>
+          `;
+        }
+      });
     }
 
-    oddsData.forEach(match => {
-      const card = document.createElement("div");
-      card.className = "odds-card";
-      card.innerHTML = `
-        <h4>${match.sport_title} - ${match.home_team} x ${match.away_team}</h4>
-        <p><strong>Mercados:</strong></p>
-        ${match.bookmakers.map(bm => `
-          <p>${bm.title}: 
-            ${bm.markets.map(mk => `
-              <span>${mk.key}: ${mk.outcomes.map(o => `${o.name} @ ${o.price}`).join(" | ")}</span>
-            `).join("<br>")}
-          </p>
-        `).join("<hr>")}
-      `;
-      oddsList.appendChild(card);
-    });
+    resultsDiv.innerHTML = arbitragemHTML || "Nenhuma arbitragem encontrada agora.";
+  } catch (err) {
+    resultsDiv.innerHTML = "Erro ao carregar odds.";
+    console.error(err);
   }
-});
+}
